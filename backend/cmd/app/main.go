@@ -17,10 +17,10 @@ func main() {
 
 	router := gin.Default()
 
-	authHandler := auth.NewHandler(auth.NewService(auth.NewRepository(db)))
+	authHandler := auth.AuthHandler(auth.AuthService(auth.AuthRepository(db)))
 	authHandler.RegisterRoutes(router)
 
-	menuHandler := menu.NewHandler(menu.NewService(menu.NewRepository(db)))
+	menuHandler := menu.MenuHandler(menu.MenuService(menu.MenuRepository(db)))
 	menuHandler.RegisterRoutes(router)
 
 	log.Println("Go Server running smoothly on port 8080")

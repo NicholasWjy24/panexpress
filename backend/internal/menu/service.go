@@ -4,7 +4,7 @@ type Service struct {
 	repository *Repository
 }
 
-func NewService(repository *Repository) *Service {
+func MenuService(repository *Repository) *Service {
 	return &Service{repository: repository}
 }
 

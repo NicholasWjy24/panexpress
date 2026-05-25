@@ -21,7 +21,7 @@ type LoginInput struct {
 	Password string `json:"password" binding:"required"`
 }
 
-func NewService(repository *Repository) *Service {
+func AuthService(repository *Repository) *Service {
 	return &Service{repository: repository}
 }
 
