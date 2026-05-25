@@ -51,8 +51,8 @@ class AuthLoading extends AuthState {
   const AuthLoading();
 }
 
-class AuthSuccess extends AuthState {
-  const AuthSuccess(this.message);
+class RegisterAuthSuccess extends AuthState {
+  const RegisterAuthSuccess(this.message);
 
   final String message;
 
@@ -120,7 +120,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         password: event.password,
       );
 
-      emit(AuthSuccess(message));
+      emit(RegisterAuthSuccess(message));
     } on AuthException catch (error) {
       emit(AuthFailure(error.message));
     }

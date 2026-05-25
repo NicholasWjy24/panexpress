@@ -58,7 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
-          if (state is AuthSuccess && !_isRegister) {
+          if (state is LoginAuthSuccess) {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -67,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
             );
           }
 
-          if (state is AuthSuccess && _isRegister) {
+          if (state is RegisterAuthSuccess) {
             showDialog(
               context: context,
               builder: (context) {
