@@ -42,24 +42,36 @@ func (h *Handler) Register(c *gin.Context) {
 
 func (h *Handler) Login(c *gin.Context) {
 	var input LoginInput
+
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid data layout"})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid data layout",
+		})
 		return
 	}
 
-	user, err := h.service.Login(input)
+	user, tokenString, err := h.service.Login(input)
+
 	if errors.Is(err, ErrInvalidCredentials) {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "Invalid username or password",
+		})
 		return
 	}
+
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to login"})
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to login",
+		})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":  "Login successful!",
-		"user_id":  user.ID,
-		"username": user.Username,
+		"message":    "Login successful!",
+		"token":      tokenString,
+		"user_id":    user.ID,
+		"username":   user.Username,
+		"email":      user.Email,
+		"role_level": user.RoleLevel,
 	})
 }

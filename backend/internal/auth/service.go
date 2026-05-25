@@ -2,9 +2,14 @@ package auth
 
 import (
 	"errors"
+	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 var ErrInvalidCredentials = errors.New("invalid username or password")
+
+var jwtSecret = []byte("your_super_secret_key_change_this_in_production")
 
 type Service struct {
 	repository *Repository
@@ -39,15 +44,28 @@ func (s *Service) Register(input RegisterInput) (*User, error) {
 	return user, nil
 }
 
-func (s *Service) Login(input LoginInput) (*User, error) {
+func (s *Service) Login(input LoginInput) (*User, string, error) {
+
 	user, err := s.repository.FindUserByUsername(input.Username)
 	if err != nil {
-		return nil, ErrInvalidCredentials
+		return nil, "", ErrInvalidCredentials
 	}
 
 	if user.Password != input.Password {
-		return nil, ErrInvalidCredentials
+		return nil, "", ErrInvalidCredentials
 	}
 
-	return user, nil
+	claims := jwt.MapClaims{
+		"id":         user.ID,
+		"role_level": user.RoleLevel,
+		"exp":        time.Now().Add(time.Hour * 24).Unix(),
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString(jwtSecret)
+	if err != nil {
+		return nil, "", err
+	}
+
+	return user, tokenString, nil
 }
