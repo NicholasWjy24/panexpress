@@ -10,9 +10,11 @@ func MenuRepository(db *gorm.DB) *Repository {
 	return &Repository{db: db}
 }
 
-func (r *Repository) FindAll() ([]Menu, error) {
+func (r *Repository) FindByRoleLevel(roleLevel int) ([]Menu, error) {
 	var menus []Menu
-	if err := r.db.Table("menus").Find(&menus).Error; err != nil {
+	if err := r.db.Table("menus").
+		Where("min_role_level <= ? AND max_role_level >= ?", roleLevel, roleLevel).
+		Find(&menus).Error; err != nil {
 		return nil, err
 	}
 
