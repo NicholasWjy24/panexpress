@@ -1,3 +1,4 @@
+import 'package:panexpress/data/model/auth_response.dart';
 import 'package:panexpress/data/service/auth_service.dart';
 
 class AuthRepository {
@@ -5,7 +6,7 @@ class AuthRepository {
 
   final AuthService _authService;
 
-  Future<String> login({
+  Future<AuthResponse> login({
     required String username,
     required String password,
   }) async {
@@ -14,7 +15,7 @@ class AuthRepository {
       password: password,
     );
 
-    return response['message'] ?? 'Login successful';
+    return AuthResponse.fromJson(response);
   }
 
   Future<String> register({

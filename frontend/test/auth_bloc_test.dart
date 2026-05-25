@@ -1,6 +1,7 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:panexpress/data/model/auth_response.dart';
 import 'package:panexpress/data/repository/auth_repository.dart';
 import 'package:panexpress/data/service/auth_service.dart';
 import 'package:panexpress/ui/login/bloc/auth_bloc.dart';
@@ -40,23 +41,54 @@ void main() {
         print('\n[RUNNING TEST] → Skenario: Login Berhasil');
       },
       build: () {
-        when(() => mockAuthRepository.login(
-              username: tUsername,
-              password: tPassword,
-            )).thenAnswer((_) async => 'Login Berhasil!');
+        when(
+          () => mockAuthRepository.login(
+            username: tUsername,
+            password: tPassword,
+          ),
+        ).thenAnswer(
+          (_) async => const AuthResponse(
+            message: 'Login Berhasil!',
+            token: 'dummy-token',
+            userId: 1,
+            username: 'nick',
+            email: 'nick@gmail.com',
+            roleLevel: 1,
+          ),
+        );
+
         return authBloc;
       },
-      act: (bloc) => bloc
-          .add(const LoginSubmitted(username: tUsername, password: tPassword)),
+      act: (bloc) => bloc.add(
+        const LoginSubmitted(
+          username: tUsername,
+          password: tPassword,
+        ),
+      ),
       expect: () => [
         const AuthLoading(),
-        const AuthSuccess('Login Berhasil!'),
+        const LoginAuthSuccess(
+          AuthResponse(
+            message: 'Login Berhasil!',
+            token: 'dummy-token',
+            userId: 1,
+            username: 'nick',
+            email: 'nick@gmail.com',
+            roleLevel: 1,
+          ),
+        ),
       ],
       verify: (_) {
-        verify(() => mockAuthRepository.login(
-            username: tUsername, password: tPassword)).called(1);
+        verify(
+          () => mockAuthRepository.login(
+            username: tUsername,
+            password: tPassword,
+          ),
+        ).called(1);
+
         print(
-            '✅ [SUCCESS] → Skenario Login Berhasil Lolos! State sesuai ekspektasi.');
+          '✅ [SUCCESS] → Skenario Login Berhasil Lolos! State sesuai ekspektasi.',
+        );
       },
     );
 

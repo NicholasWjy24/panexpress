@@ -1,5 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:panexpress/data/model/auth_response.dart';
 import 'package:panexpress/data/service/auth_service.dart';
+import 'package:panexpress/utils/secure_storage_service.dart';
 
 import '../../../data/repository/auth_repository.dart';
 import 'package:equatable/equatable.dart';
@@ -58,6 +60,15 @@ class AuthSuccess extends AuthState {
   List<Object?> get props => [message];
 }
 
+class LoginAuthSuccess extends AuthState {
+  const LoginAuthSuccess(this.auth);
+
+  final AuthResponse auth;
+
+  @override
+  List<Object?> get props => [auth];
+}
+
 class AuthFailure extends AuthState {
   const AuthFailure(this.message);
 
@@ -83,12 +94,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(const AuthLoading());
 
     try {
-      final message = await _authRepository.login(
+      final auth = await _authRepository.login(
         username: event.username,
         password: event.password,
       );
 
-      emit(AuthSuccess(message));
+      await SecureStorageService.saveToken(auth.token);
+
+      emit(LoginAuthSuccess(auth));
     } on AuthException catch (error) {
       emit(AuthFailure(error.message));
     }
