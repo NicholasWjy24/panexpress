@@ -87,11 +87,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         username: event.username,
         password: event.password,
       );
+
       emit(AuthSuccess(message));
     } on AuthException catch (error) {
       emit(AuthFailure(error.message));
-    } catch (_) {
-      emit(const AuthFailure('Could not connect to the login API.'));
     }
   }
 
@@ -107,11 +106,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         email: event.email,
         password: event.password,
       );
+
       emit(AuthSuccess(message));
     } on AuthException catch (error) {
       emit(AuthFailure(error.message));
-    } catch (_) {
-      emit(const AuthFailure('Could not connect to the register API.'));
     }
   }
 
