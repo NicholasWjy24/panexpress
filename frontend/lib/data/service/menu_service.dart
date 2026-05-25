@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:panexpress/utils/secure_storage_service.dart';
 
 class MenuService {
   MenuService({
@@ -12,10 +13,13 @@ class MenuService {
   final String baseUrl;
 
   Future<dynamic> getMenus() async {
+    final token = await SecureStorageService.getToken();
+
     final response = await _client.get(
       Uri.parse('$baseUrl/menu'),
-      headers: const {
+      headers: {
         'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
       },
     );
 
@@ -31,7 +35,9 @@ class MenuService {
       );
     }
 
-    throw MenuException('Request failed with status ${response.statusCode}');
+    throw MenuException(
+      'Request failed with status ${response.statusCode}',
+    );
   }
 }
 
