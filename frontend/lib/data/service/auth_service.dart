@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
@@ -46,6 +47,11 @@ class AuthService {
     required Map<String, String> body,
   }) async {
     try {
+      log(
+        'REQUEST → POST $url',
+        name: 'AuthService',
+      );
+
       final response = await _client
           .post(
             Uri.parse(url),
@@ -56,6 +62,11 @@ class AuthService {
             body: jsonEncode(body),
           )
           .timeout(const Duration(seconds: 10));
+
+      log(
+        'RESPONSE CODE : ${response.statusCode}\nRESPONSE MESSAGE: ${response.body}',
+        name: 'AuthService',
+      );
 
       final decoded = response.body.isNotEmpty
           ? jsonDecode(response.body)
@@ -68,23 +79,58 @@ class AuthService {
       throw AuthException(
         decoded['error'] ?? 'Request failed with status ${response.statusCode}',
       );
-    } on SocketException {
+    } on SocketException catch (e, stackTrace) {
+      log(
+        'SocketException: Cannot connect to server.',
+        name: 'AuthService',
+        error: e,
+        stackTrace: stackTrace,
+      );
+
       throw const AuthException(
         'Cannot connect to server.',
       );
-    } on TimeoutException {
+    } on TimeoutException catch (e, stackTrace) {
+      log(
+        'TimeoutException: Connection timeout.',
+        name: 'AuthService',
+        error: e,
+        stackTrace: stackTrace,
+      );
+
       throw const AuthException(
         'Connection timeout.',
       );
-    } on FormatException {
+    } on FormatException catch (e, stackTrace) {
+      log(
+        'FormatException: Invalid server response.',
+        name: 'AuthService',
+        error: e,
+        stackTrace: stackTrace,
+      );
+
       throw const AuthException(
         'Invalid server response.',
       );
-    } on http.ClientException {
+    } on http.ClientException catch (e, stackTrace) {
+      log(
+        'ClientException: HTTP client error.',
+        name: 'AuthService',
+        error: e,
+        stackTrace: stackTrace,
+      );
+
       throw const AuthException(
         'HTTP client error.',
       );
-    } catch (e) {
+    } catch (e, stackTrace) {
+      log(
+        'Unexpected Error',
+        name: 'AuthService',
+        error: e,
+        stackTrace: stackTrace,
+      );
+
       throw AuthException(
         'Unexpected error: $e',
       );
