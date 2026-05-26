@@ -27,7 +27,15 @@ class _LoginScreenState extends State<LoginScreen> {
     _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  void clear() {
+    _usernameController.clear();
+    _emailController.clear();
+    _passwordController.clear();
+    _confirmPasswordController.clear();
   }
 
   void _submit() {
@@ -59,8 +67,28 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: BlocListener<AuthBloc, AuthState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           if (state is LoginAuthSuccess) {
+            await showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: const Text('Success'),
+                  content: Text(state.auth.message),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text('OK'),
+                    ),
+                  ],
+                );
+              },
+            );
+
+            if (!context.mounted) return;
+
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -87,6 +115,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 );
               },
             );
+            clear();
           }
 
           if (state is AuthFailure) {
