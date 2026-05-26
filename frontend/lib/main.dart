@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:panexpress/data/service/auth_service.dart';
 import 'package:panexpress/data/service/menu_service.dart';
+import 'package:panexpress/routing/routing.dart';
 
 import 'data/repository/auth_repository.dart';
 import 'data/repository/menu_repository.dart';
@@ -39,6 +40,7 @@ class MyApp extends StatelessWidget {
             useMaterial3: true,
           ),
           home: const LoginScreen(),
+          onGenerateRoute: AppRoutes.generateRoute,
         ),
       ),
     );

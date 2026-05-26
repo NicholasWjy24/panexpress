@@ -120,11 +120,12 @@ class _HomeDrawer extends StatelessWidget {
   void _selectMenu(BuildContext context, MenuItem menu) {
     Navigator.pop(context);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${menu.menuName} selected'),
-      ),
-    );
+    if (menu.route.isNotEmpty) {
+      Navigator.pushNamed(
+        context,
+        menu.route,
+      );
+    }
   }
 
   void _logout(BuildContext context) {
