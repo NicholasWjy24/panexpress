@@ -116,6 +116,11 @@ class _LoginScreenState extends State<LoginScreen> {
               },
             );
             clear();
+            setState(
+              () {
+                _isRegister = false;
+              },
+            );
           }
 
           if (state is AuthFailure) {
