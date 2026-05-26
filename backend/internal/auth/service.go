@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var ErrInvalidCredentials = errors.New("invalid username or password")
@@ -31,10 +32,21 @@ func AuthService(repository *Repository) *Service {
 }
 
 func (s *Service) Register(input RegisterInput) (*User, error) {
+
+	hashedPassword, err := bcrypt.GenerateFromPassword(
+		[]byte(input.Password),
+		bcrypt.DefaultCost,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
 	user := &User{
-		Username: input.Username,
-		Email:    input.Email,
-		Password: input.Password,
+		Username:  input.Username,
+		Email:     input.Email,
+		Password:  string(hashedPassword),
+		RoleLevel: 3,
 	}
 
 	if err := s.repository.CreateUser(user); err != nil {
@@ -51,7 +63,12 @@ func (s *Service) Login(input LoginInput) (*User, string, error) {
 		return nil, "", ErrInvalidCredentials
 	}
 
-	if user.Password != input.Password {
+	err = bcrypt.CompareHashAndPassword(
+		[]byte(user.Password),
+		[]byte(input.Password),
+	)
+
+	if err != nil {
 		return nil, "", ErrInvalidCredentials
 	}
 
@@ -61,7 +78,11 @@ func (s *Service) Login(input LoginInput) (*User, string, error) {
 		"exp":        time.Now().Add(time.Hour * 24).Unix(),
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	token := jwt.NewWithClaims(
+		jwt.SigningMethodHS256,
+		claims,
+	)
+
 	tokenString, err := token.SignedString(jwtSecret)
 	if err != nil {
 		return nil, "", err
