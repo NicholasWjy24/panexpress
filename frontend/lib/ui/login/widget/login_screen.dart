@@ -16,9 +16,11 @@ class _LoginScreenState extends State<LoginScreen> {
   final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
   bool _isRegister = false;
   bool _hidePassword = true;
+  bool _hideConfirmPassword = true;
 
   @override
   void dispose() {
@@ -210,6 +212,45 @@ class _LoginScreenState extends State<LoginScreen> {
                           return null;
                         },
                       ),
+                      const SizedBox(height: 12),
+                      _isRegister
+                          ? TextFormField(
+                              controller: _confirmPasswordController,
+                              obscureText: _hideConfirmPassword,
+                              textInputAction: TextInputAction.done,
+                              onFieldSubmitted: (_) => _submit(),
+                              decoration: InputDecoration(
+                                border: const OutlineInputBorder(),
+                                labelText: 'Confirm Password',
+                                prefixIcon: const Icon(Icons.password_outlined),
+                                suffixIcon: IconButton(
+                                  tooltip: _hideConfirmPassword
+                                      ? 'Show confirm password'
+                                      : 'Hide confirm password',
+                                  onPressed: () {
+                                    setState(() {
+                                      _hideConfirmPassword =
+                                          !_hideConfirmPassword;
+                                    });
+                                  },
+                                  icon: Icon(
+                                    _hideConfirmPassword
+                                        ? Icons.visibility_outlined
+                                        : Icons.visibility_off_outlined,
+                                  ),
+                                ),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.length < 6) {
+                                  return 'Password must be at least 6 characters';
+                                }
+                                if (value != _passwordController.text) {
+                                  return 'Password is not same';
+                                }
+                                return null;
+                              },
+                            )
+                          : const SizedBox.shrink(),
                       const SizedBox(height: 24),
                       BlocBuilder<AuthBloc, AuthState>(
                         builder: (context, state) {
