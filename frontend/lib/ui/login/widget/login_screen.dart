@@ -132,14 +132,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.headlineSmall,
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        _isRegister
-                            ? 'Register with your local API.'
-                            : 'Login with your local API.',
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
                       const SizedBox(height: 32),
                       if (_isRegister) ...[
                         TextFormField(
