@@ -20,3 +20,14 @@ func (r *Repository) FindByRoleLevel(roleLevel int) ([]Menu, error) {
 
 	return menus, nil
 }
+
+func (r *Repository) FindAll() ([]Menu, error) {
+
+	var menus []Menu
+
+	if err := r.db.Find(&menus).Error; err != nil {
+		return nil, err
+	}
+
+	return menus, nil
+}

@@ -11,3 +11,7 @@ func MenuService(repository *Repository) *Service {
 func (s *Service) GetMenus(roleLevel int) ([]Menu, error) {
 	return s.repository.FindByRoleLevel(roleLevel)
 }
+
+func (s *Service) GetAllMenus() ([]Menu, error) {
+	return s.repository.FindAll()
+}

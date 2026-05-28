@@ -62,3 +62,17 @@ func getRoleLevel(c *gin.Context) (int, error) {
 		return 0, fmt.Errorf("invalid role level in token")
 	}
 }
+
+func (h *Handler) GetAllMenus(c *gin.Context) {
+
+	users, err := h.service.GetAllMenus()
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, users)
+}
