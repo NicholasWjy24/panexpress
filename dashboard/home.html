@@ -24,6 +24,7 @@
       --drawer: #182235;
       --success: #15803d;
       --warning: #b45309;
+      --danger: #dc2626;
     }
 
     body {
@@ -71,7 +72,8 @@
 
     .nav button,
     .logout-button,
-    .menu-toggle {
+    .menu-toggle,
+    .refresh-button {
       border: 0;
       cursor: pointer;
       font-size: 15px;
@@ -109,7 +111,7 @@
     }
 
     .logout-button:hover {
-      background: #dc2626;
+      background: var(--danger);
     }
 
     .main {
@@ -217,12 +219,9 @@
     }
 
     .refresh-button {
-      border: 0;
-      border-radius: 8px;
       padding: 10px 14px;
       background: var(--brand);
       color: #ffffff;
-      cursor: pointer;
       font-size: 14px;
     }
 
@@ -275,9 +274,9 @@
       font-weight: 700;
     }
 
-    .badge.active {
-      color: var(--success);
-      background: #dcfce7;
+    .badge.admin {
+      color: #7c2d12;
+      background: #ffedd5;
     }
 
     .badge.staff {
@@ -285,15 +284,25 @@
       background: #dbeafe;
     }
 
-    .badge.pending {
-      color: var(--warning);
-      background: #fef3c7;
+    .badge.user {
+      color: var(--success);
+      background: #dcfce7;
+    }
+
+    .empty-state,
+    .error-text {
+      padding: 22px 20px;
+      text-align: center;
     }
 
     .empty-state {
-      padding: 26px 20px;
       color: var(--muted);
-      text-align: center;
+    }
+
+    .error-text {
+      color: var(--danger);
+      border-top: 1px solid var(--line);
+      font-size: 14px;
     }
 
     .drawer-backdrop {
@@ -351,8 +360,8 @@
       </div>
 
       <nav class="nav">
-        <button type="button" class="active" data-view="users">Table User</button>
-        <button type="button" data-view="menu">Table Menu</button>
+        <button type="button" class="active" data-view="users">Users Table</button>
+        <button type="button" data-view="menu">Menu Table</button>
       </nav>
 
       <div class="drawer-footer">
@@ -365,8 +374,8 @@
       <header class="topbar">
         <button type="button" class="menu-toggle" id="menuToggle" aria-label="Open drawer">=</button>
         <div class="page-title">
-          <h1 id="pageTitle">Table User</h1>
-          <p id="pageSubtitle">Manage dashboard users and roles.</p>
+          <h1 id="pageTitle">Users Table</h1>
+          <p id="pageSubtitle">View user rows from the users API.</p>
         </div>
         <div class="admin-chip" id="adminChip">Admin</div>
       </header>
@@ -378,12 +387,12 @@
             <strong id="totalUsers">0</strong>
           </div>
           <div class="stat">
-            <span>Total Menu</span>
+          <span>Total Menu</span>
             <strong id="totalMenus">0</strong>
           </div>
           <div class="stat">
-            <span>Active Staff</span>
-            <strong id="activeStaff">0</strong>
+            <span>Staff Users</span>
+            <strong id="staffUsers">0</strong>
           </div>
         </div>
 
@@ -391,7 +400,7 @@
           <div class="panel-header">
             <div>
               <h2 id="tableTitle">User List</h2>
-              <p id="tableDescription">Users shown here are dashboard data until a users API is available.</p>
+              <p id="tableDescription">Data source: GET /api/users.</p>
             </div>
             <button type="button" class="refresh-button" id="refreshButton">Refresh</button>
           </div>
@@ -403,30 +412,20 @@
             </table>
           </div>
           <div class="empty-state" id="emptyState" hidden>No data available.</div>
+          <div class="error-text" id="errorText" hidden></div>
         </section>
       </section>
     </main>
   </div>
 
   <script>
-    const API_BASE_URL = 'http://10.0.2.2:8080/api';
-
-    const fallbackUsers = [
-      { id: 1, username: 'admin', email: 'admin@panexpress.test', role: 'Admin', status: 'Active' },
-      { id: 2, username: 'nicholas', email: 'nicholas@panexpress.test', role: 'Staff', status: 'Active' },
-      { id: 3, username: 'kevin', email: 'kevin@panexpress.test', role: 'Staff', status: 'Pending' },
-    ];
-
-    const fallbackMenus = [
-      { id: 1, name: 'Pesan Makanan', route: '/pesan-makanan', minRoleLevel: 1, maxRoleLevel: 5 },
-      { id: 2, name: 'Ambil Pesanan', route: '/ambil-pesanan', minRoleLevel: 1, maxRoleLevel: 5 },
-      { id: 3, name: 'Dashboard Admin', route: '/dashboard', minRoleLevel: 5, maxRoleLevel: 5 },
-    ];
+    const API_BASE_URL = 'http://localhost:8080/api';
 
     const state = {
       view: 'users',
-      users: fallbackUsers,
-      menus: fallbackMenus,
+      users: [],
+      menus: [],
+      error: '',
     };
 
     const token = localStorage.getItem('token');
@@ -446,9 +445,10 @@
       tableHead: document.getElementById('tableHead'),
       tableBody: document.getElementById('tableBody'),
       emptyState: document.getElementById('emptyState'),
+      errorText: document.getElementById('errorText'),
       totalUsers: document.getElementById('totalUsers'),
       totalMenus: document.getElementById('totalMenus'),
-      activeStaff: document.getElementById('activeStaff'),
+      staffUsers: document.getElementById('staffUsers'),
     };
 
     if (storedUser) {
@@ -471,8 +471,9 @@
     document.getElementById('refreshButton').addEventListener('click', loadCurrentView);
 
     document.querySelectorAll('.nav button').forEach((button) => {
-      button.addEventListener('click', () => {
-        setView(button.dataset.view);
+      button.addEventListener('click', async () => {
+        state.view = button.dataset.view;
+        await loadCurrentView();
         closeDrawer();
       });
     });
@@ -481,16 +482,32 @@
       document.body.classList.remove('drawer-open');
     }
 
-    function statusBadge(value) {
-      const text = value || 'Active';
-      const className = text.toLowerCase() === 'pending' ? 'pending' : 'active';
-      return `<span class="badge ${className}">${text}</span>`;
+    function getArrayPayload(data, key) {
+      if (Array.isArray(data)) {
+        return data;
+      }
+
+      if (data && Array.isArray(data[key])) {
+        return data[key];
+      }
+
+      if (data && Array.isArray(data.data)) {
+        return data.data;
+      }
+
+      return [];
+    }
+
+    function setError(message) {
+      state.error = message || '';
+      elements.errorText.textContent = state.error;
+      elements.errorText.hidden = !state.error;
     }
 
     function renderStats() {
       elements.totalUsers.textContent = state.users.length;
       elements.totalMenus.textContent = state.menus.length;
-      elements.activeStaff.textContent = state.users.filter((user) => user.status === 'Active').length;
+      state.users.filter((user) => user.roleLevel === 2).length;
     }
 
     function renderUsers() {
@@ -499,8 +516,7 @@
           <th>ID</th>
           <th>Username</th>
           <th>Email</th>
-          <th>Role</th>
-          <th>Status</th>
+          <th>Role Level</th>
         </tr>
       `;
 
@@ -509,8 +525,7 @@
           <td>${user.id}</td>
           <td>${user.username}</td>
           <td>${user.email}</td>
-          <td><span class="badge staff">${user.role}</span></td>
-          <td>${statusBadge(user.status)}</td>
+          <td>${user.roleLevel}</td>
         </tr>
       `).join('');
 
@@ -532,73 +547,127 @@
         <tr>
           <td>${menu.id}</td>
           <td>${menu.name}</td>
-          <td>${menu.route || '-'}</td>
-          <td>${menu.minRoleLevel || '-'}</td>
-          <td>${menu.maxRoleLevel || '-'}</td>
+          <td>${menu.route}</td>
+          <td>${menu.minRoleLevel}</td>
+          <td>${menu.maxRoleLevel}</td>
         </tr>
       `).join('');
 
       elements.emptyState.hidden = state.menus.length > 0;
     }
 
-    function setView(view) {
-      state.view = view;
-
+    function renderView() {
       document.querySelectorAll('.nav button').forEach((button) => {
-        button.classList.toggle('active', button.dataset.view === view);
+        button.classList.toggle('active', button.dataset.view === state.view);
       });
 
-      if (view === 'menu') {
-        elements.pageTitle.textContent = 'Table Menu';
-        elements.pageSubtitle.textContent = 'View menu items available in PanExpress.';
+      if (state.view === 'menu') {
+        elements.pageTitle.textContent = 'Menu Table';
+        elements.pageSubtitle.textContent = 'View menu rows from the menu API.';
         elements.tableTitle.textContent = 'Menu List';
-        elements.tableDescription.textContent = 'Menu data loads from the backend when it is running.';
+        elements.tableDescription.textContent = 'Data source: GET /api/menu.';
         renderMenus();
       } else {
-        elements.pageTitle.textContent = 'Table User';
-        elements.pageSubtitle.textContent = 'Manage dashboard users and roles.';
+        elements.pageTitle.textContent = 'Users Table';
+        elements.pageSubtitle.textContent = 'View user rows from the users API.';
         elements.tableTitle.textContent = 'User List';
-        elements.tableDescription.textContent = 'Users shown here are dashboard data until a users API is available.';
+        elements.tableDescription.textContent = 'Data source: GET /api/users.';
         renderUsers();
       }
 
       renderStats();
     }
 
-    async function loadMenus() {
-      try {
-        const response = await fetch(`${API_BASE_URL}/menu`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+    async function authorizedGet(paths) {
+      let lastError = null;
 
-        if (!response.ok) {
-          throw new Error('Unable to load menu data');
+      for (const path of paths) {
+        try {
+          const response = await fetch(`${API_BASE_URL}${path}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (response.status === 401) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+            return null;
+          }
+
+          if (!response.ok) {
+            throw new Error(`GET /api${path} failed with status ${response.status}`);
+          }
+
+          return response.json();
+        } catch (error) {
+          lastError = error;
         }
-
-        const data = await response.json();
-        state.menus = data.map((menu) => ({
-          id: menu.ID || menu.id,
-          name: menu.MenuName || menu.menu_name || menu.name || 'Untitled menu',
-          route: menu.Route || menu.route || '-',
-          minRoleLevel: menu.MinRoleLevel || menu.min_role_level || '-',
-          maxRoleLevel: menu.MaxRoleLevel || menu.max_role_level || '-',
-        }));
-      } catch (error) {
-        console.warn(error.message);
       }
+
+      throw lastError || new Error('Unable to load data');
+    }
+
+    async function loadUsers() {
+      const data = await authorizedGet(['/users']);
+      state.users = getArrayPayload(data, 'users').map((user) => {
+        const roleLevel = user.RoleLevel || user.role_level || user.roleLevel || 0;
+
+        return {
+          id: user.ID || user.id,
+          username: user.Username || user.username || '-',
+          email: user.Email || user.email || '-',
+          roleLevel,
+          role: user.Role || user.role,
+        };
+        console.log(state.users);
+      });
+    }
+
+    async function loadMenus() {
+      const data = await authorizedGet(['/menu']);
+      state.menus = getArrayPayload(data, 'menu').map((menu) => ({
+        id: menu.ID || menu.id,
+        name: menu.MenuName || menu.menu_name || menu.name || 'Untitled menu',
+        route: menu.Route || menu.route || '-',
+        minRoleLevel: menu.MinRoleLevel || menu.min_role_level || menu.minRoleLevel || '-',
+        maxRoleLevel: menu.MaxRoleLevel || menu.max_role_level || menu.maxRoleLevel || '-',
+      }));
+    }
+
+    async function loadDashboardData() {
+      setError('');
+
+      try {
+        await Promise.all([
+          loadUsers(),
+          loadMenus(),
+        ]);
+      } catch (error) {
+        setError(error.message);
+      }
+
+      renderView();
     }
 
     async function loadCurrentView() {
-      if (state.view === 'menu') {
-        await loadMenus();
+      setError('');
+
+      try {
+        if (state.view === 'menu') {
+          await loadMenus();
+        } else {
+          await loadUsers();
+        }
+      } catch (error) {
+        setError(error.message);
       }
 
-      setView(state.view);
+      renderView();
     }
 
-    loadMenus().finally(() => setView('users'));
+    loadDashboardData();
   </script>
 </body>
 </html>
