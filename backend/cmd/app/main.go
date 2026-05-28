@@ -8,11 +8,12 @@ import (
 	"panpress.com/internal/database"
 	"panpress.com/internal/menu"
 	"panpress.com/internal/middleware"
+	"panpress.com/internal/user"
 )
 
 func main() {
 	db := database.Connect()
-	if err := db.AutoMigrate(&auth.User{}, &menu.Menu{}); err != nil {
+	if err := db.AutoMigrate(&auth.User{}, &menu.Menu{}, &user.User{}); err != nil {
 		log.Fatal("Failed to migrate database:", err)
 	}
 
@@ -24,6 +25,9 @@ func main() {
 
 	menuHandler := menu.MenuHandler(menu.MenuService(menu.MenuRepository(db)))
 	menuHandler.RegisterRoutes(router)
+
+	userHandler := user.UserHandler(user.UserService(user.UserRepository(db)))
+	userHandler.RegisterRoutes(router)
 
 	log.Println("Go Server running smoothly on port 8080")
 	if err := router.Run("0.0.0.0:8080"); err != nil {
