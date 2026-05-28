@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PanExpress Login</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #2563eb, #1e3a8a);
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 400px;
+      background: white;
+      padding: 32px;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .login-container h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      color: #111827;
+    }
+
+    .login-container p {
+      text-align: center;
+      color: #6b7280;
+      margin-bottom: 30px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #374151;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 16px;
+      outline: none;
+      transition: 0.2s;
+    }
+
+    input:focus {
+      border-color: #2563eb;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    .footer-text {
+      text-align: center;
+      margin-top: 20px;
+      color: #6b7280;
+      font-size: 14px;
+    }
+
+    .error-message {
+      margin-top: 16px;
+      text-align: center;
+      color: red;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <h1>PanExpress</h1>
+    <p>Login to your account</p>
+
+    <form id="loginForm">
+
+      <div class="form-group">
+        <label>Username</label>
+        <input
+          type="text"
+          id="username"
+          placeholder="Enter username"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <input
+          type="password"
+          id="password"
+          placeholder="Enter password"
+          required
+        />
+      </div>
+
+      <button type="submit">
+        Login
+      </button>
+
+      <div class="error-message" id="errorMessage">
+        Invalid username or password
+      </div>
+    </form>
+
+    <div class="footer-text">
+      &copy; 2026 PanExpress Dashboard
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('loginForm');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const errorMessage = document.getElementById('errorMessage');
+
+      errorMessage.style.display = 'none';
+
+      try {
+        const response = await fetch('http://localhost:8080/api/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            username,
+            password,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Login failed');
+        }
+
+        console.log('Login success:', data);
+
+        // Save JWT token
+        localStorage.setItem('token', data.token);
+
+        localStorage.setItem('user', JSON.stringify({
+          id: data.user_id,
+          username: data.username,
+          email: data.email,
+          roleLevel: data.role_level,
+        }));
+
+        window.location.href = 'home.html';
+
+      } catch (error) {
+        console.error(error);
+
+        errorMessage.innerText = error.message;
+        errorMessage.style.display = 'block';
+      }
+    });
+  </script>
+
+</body>
+</html>
