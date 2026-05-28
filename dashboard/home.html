@@ -420,11 +420,11 @@
 
       <section class="content">
         <div class="stats">
-          <div class="stat">
+          <div class="stat" id="usersStat">
             <span>Total Users</span>
             <strong id="totalUsers">0</strong>
           </div>
-          <div class="stat">
+          <div class="stat" id="menusStat">
             <span>Total Menu</span>
             <strong id="totalMenus">0</strong>
           </div>
@@ -483,6 +483,8 @@
       totalUsers: document.getElementById('totalUsers'),
       totalMenus: document.getElementById('totalMenus'),
       staffUsers: document.getElementById('staffUsers'),
+      usersStat: document.getElementById('usersStat'),
+      menusStat: document.getElementById('menusStat'),
     };
 
     if (storedUser) {
@@ -734,12 +736,16 @@
         elements.pageSubtitle.textContent = 'View menu rows from the menu API.';
         elements.tableTitle.textContent = 'Menu List';
         elements.tableDescription.textContent = 'Data source: GET /api/menu.';
+        elements.usersStat.hidden = true;
+        elements.menusStat.hidden = false;
         renderMenus();
       } else {
         elements.pageTitle.textContent = 'Users Table';
         elements.pageSubtitle.textContent = 'View user rows from the users API.';
         elements.tableTitle.textContent = 'User List';
         elements.tableDescription.textContent = 'Data source: GET /api/users.';
+        elements.usersStat.hidden = false;
+        elements.menusStat.hidden = true;
         renderUsers();
       }
 
