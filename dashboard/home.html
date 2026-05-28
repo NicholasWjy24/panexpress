@@ -356,12 +356,13 @@
         cursor: pointer;
         color: white;
         font-size: 16px;
-        margin-right: 6px;
+        margin-right: 12px;
         transition: 0.2s ease;
       }
 
       .edit-button {
         background: #2563eb;
+        margin-right: 8px;
       }
 
       .edit-button:hover {
@@ -370,11 +371,18 @@
 
       .delete-button {
         background: #dc2626;
+        margin-left: 8px;
       }
 
       .delete-button:hover {
         background: #b91c1c;
       }
+
+      .action-group {
+        display: flex;
+        gap: 8px;
+      }
+
     }
   </style>
 </head>
@@ -558,20 +566,138 @@
             class="action-button edit-button"
             onclick="editUser(${user.id})"
           >
-            ✏️
+            Edit
           </button>
 
           <button
             class="action-button delete-button"
             onclick="deleteUser(${user.id})"
           >
-            🗑️
+            Delete
           </button>
         </td>
       </tr>
       `).join('');
 
       elements.emptyState.hidden = state.users.length > 0;
+    }
+
+    async function deleteUser(id) {
+
+      const confirmed = confirm(
+        'Delete this user?'
+      );
+
+      if (!confirmed) {
+        return;
+      }
+
+      try {
+
+        const response = await fetch(
+          `${API_BASE_URL}/users/${id}`,
+          {
+            method: 'DELETE',
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error(
+            'Failed to delete user'
+          );
+        }
+
+        await loadUsers();
+
+        renderView();
+
+        alert('User deleted successfully');
+
+      } catch (error) {
+
+        console.error(error);
+
+        alert(error.message);
+      }
+    }
+
+    async function editUser(id) {
+
+      const user = state.users.find(
+        (u) => u.id === id
+      );
+
+      if (!user) {
+        alert('User not found');
+        return;
+      }
+
+      const username = prompt(
+        'Edit username:',
+        user.username
+      );
+
+      if (!username) {
+        return;
+      }
+
+      const email = prompt(
+        'Edit email:',
+        user.email
+      );
+
+      if (!email) {
+        return;
+      }
+
+      const roleLevel = prompt(
+        'Edit role level:',
+        user.roleLevel
+      );
+
+      if (!roleLevel) {
+        return;
+      }
+
+      try {
+
+        const response = await fetch(
+          `${API_BASE_URL}/users/${id}`,
+          {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              username,
+              email,
+              role_level: Number(roleLevel),
+            }),
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error(
+            'Failed to update user'
+          );
+        }
+
+        await loadUsers();
+
+        renderView();
+
+        alert('User updated successfully');
+
+      } catch (error) {
+
+        console.error(error);
+
+        alert(error.message);
+      }
     }
 
     function renderMenus() {
