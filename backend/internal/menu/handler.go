@@ -21,6 +21,7 @@ func (h *Handler) RegisterRoutes(router *gin.Engine) {
 	authorized := router.Group("/api")
 	authorized.Use(middleware.AuthMiddleware())
 	authorized.GET("/menu", h.GetMenus)
+	authorized.GET("/menus", h.GetAllMenus)
 }
 
 func (h *Handler) GetMenus(c *gin.Context) {

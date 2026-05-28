@@ -735,7 +735,7 @@
         elements.pageTitle.textContent = 'Menu Table';
         elements.pageSubtitle.textContent = 'View menu rows from the menu API.';
         elements.tableTitle.textContent = 'Menu List';
-        elements.tableDescription.textContent = 'Data source: GET /api/menu.';
+        elements.tableDescription.textContent = 'Data source: GET /api/menus';
         elements.usersStat.hidden = true;
         elements.menusStat.hidden = false;
         renderMenus();
@@ -799,7 +799,7 @@
     }
 
     async function loadMenus() {
-      const data = await authorizedGet(['/menu']);
+      const data = await authorizedGet(['/menus']);
       state.menus = getArrayPayload(data, 'menu').map((menu) => ({
         id: menu.ID || menu.id,
         name: menu.MenuName || menu.menu_name || menu.name || 'Untitled menu',
