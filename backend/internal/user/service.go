@@ -11,3 +11,21 @@ func UserService(repository *Repository) *Service {
 func (s *Service) GetUsers() ([]User, error) {
 	return s.repository.FindAll()
 }
+
+func (s *Service) UpdateUser(
+	id string,
+	user *User,
+) error {
+
+	return s.repository.UpdateUser(
+		id,
+		user,
+	)
+}
+
+func (s *Service) DeleteUser(
+	id string,
+) error {
+
+	return s.repository.DeleteUser(id)
+}
