@@ -789,11 +789,10 @@
         const roleLevel = user.RoleLevel || user.role_level || user.roleLevel || 0;
 
         return {
-          id: user.ID || user.id,
-          username: user.Username || user.username || '-',
-          email: user.Email || user.email || '-',
-          roleLevel,
-          role: user.Role || user.role,
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          role: user.role,
         };
         console.log(state.users);
       });
