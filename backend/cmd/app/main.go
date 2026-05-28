@@ -7,6 +7,7 @@ import (
 	"panpress.com/internal/auth"
 	"panpress.com/internal/database"
 	"panpress.com/internal/menu"
+	"panpress.com/internal/middleware"
 )
 
 func main() {
@@ -16,6 +17,7 @@ func main() {
 	}
 
 	router := gin.Default()
+	router.Use(middleware.CORSMiddleware())
 
 	authHandler := auth.AuthHandler(auth.AuthService(auth.AuthRepository(db)))
 	authHandler.RegisterRoutes(router)
