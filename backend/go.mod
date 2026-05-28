@@ -1,4 +1,4 @@
-module panpress.com
+module panexpress.com
 
 go 1.25.0
 

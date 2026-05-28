@@ -4,11 +4,11 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
-	"panpress.com/internal/auth"
-	"panpress.com/internal/database"
-	"panpress.com/internal/menu"
-	"panpress.com/internal/middleware"
-	"panpress.com/internal/user"
+	"panexpress.com/internal/auth"
+	"panexpress.com/internal/database"
+	"panexpress.com/internal/menu"
+	"panexpress.com/internal/middleware"
+	"panexpress.com/internal/user"
 )
 
 func main() {

@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"panpress.com/internal/middleware"
+	"panexpress.com/internal/middleware"
 )
 
 type Handler struct {
