@@ -801,11 +801,11 @@
     async function loadMenus() {
       const data = await authorizedGet(['/menus']);
       state.menus = getArrayPayload(data, 'menu').map((menu) => ({
-        id: menu.ID || menu.id,
-        name: menu.MenuName || menu.menu_name || menu.name || 'Untitled menu',
-        route: menu.Route || menu.route || '-',
-        minRoleLevel: menu.MinRoleLevel || menu.min_role_level || menu.minRoleLevel || '-',
-        maxRoleLevel: menu.MaxRoleLevel || menu.max_role_level || menu.maxRoleLevel || '-',
+        id: menu.id,
+        name: menu.menu_name,
+        route: menu.route,
+        minRoleLevel: menu.min_role_level,
+        maxRoleLevel: menu.max_role_level,
       }));
     }
 
