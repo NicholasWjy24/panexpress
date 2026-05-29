@@ -38,3 +38,21 @@ func (s *Service) Register(
 
 	return makanan, nil
 }
+
+func (s *Service) UpdateMakanan(
+	id string,
+	makanan *Makanan,
+) error {
+
+	return s.repository.UpdateMakanan(
+		id,
+		makanan,
+	)
+}
+
+func (s *Service) DeleteMakanan(
+	id string,
+) error {
+
+	return s.repository.DeleteMakanan(id)
+}
