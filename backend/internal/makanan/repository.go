@@ -24,3 +24,25 @@ func (r *Repository) FindAll() ([]Makanan, error) {
 func (r *Repository) CreateMakanan(makanan *Makanan) error {
 	return r.db.Create(makanan).Error
 }
+
+func (r *Repository) UpdateMakanan(
+	id string,
+	makanan *Makanan,
+) error {
+
+	return r.db.
+		Model(&Makanan{}).
+		Where("mknnid = ?", id).
+		Updates(makanan).
+		Error
+}
+
+func (r *Repository) DeleteMakanan(
+	id string,
+) error {
+
+	return r.db.
+		Where("mknnid = ?", id).
+		Delete(&Makanan{}).
+		Error
+}

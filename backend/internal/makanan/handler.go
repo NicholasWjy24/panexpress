@@ -21,6 +21,8 @@ func (h *Handler) RegisterRoutes(router *gin.Engine) {
 	authorized.Use(middleware.AuthMiddleware())
 	authorized.GET("/makanan", h.GetAllMakanan)
 	authorized.POST("/makanan", h.RegisterMenu)
+	authorized.PUT("/makanan/:id", h.UpdateMakanan)
+	authorized.DELETE("/makanan/:id", h.DeleteMakanan)
 }
 
 func (h *Handler) GetAllMakanan(c *gin.Context) {
@@ -55,5 +57,59 @@ func (h *Handler) RegisterMenu(c *gin.Context) {
 			"Makanan %s created successfully!",
 			makanan.MknnNm,
 		),
+	})
+}
+
+func (h *Handler) UpdateMakanan(
+	c *gin.Context,
+) {
+
+	id := c.Param("id")
+
+	var input Makanan
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid data layout",
+		})
+
+		return
+	}
+
+	if err := h.service.UpdateMakanan(
+		id,
+		&input,
+	); err != nil {
+
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Makanan updated successfully",
+	})
+}
+
+func (h *Handler) DeleteMakanan(
+	c *gin.Context,
+) {
+
+	id := c.Param("id")
+
+	if err := h.service.DeleteMakanan(id); err != nil {
+
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Makanan deleted successfully",
 	})
 }
