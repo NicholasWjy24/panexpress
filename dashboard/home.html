@@ -74,7 +74,8 @@
     .nav button,
     .logout-button,
     .menu-toggle,
-    .refresh-button {
+    .refresh-button,
+    .add-button {
       border: 0;
       cursor: pointer;
       font-size: 15px;
@@ -229,6 +230,18 @@
     .refresh-button:hover {
       background: var(--brand-dark);
     }
+
+    .add-button {
+      padding: 10px 14px;
+      background: var(--brand);
+      color: #ffffff;
+      font-size: 14px;
+    }
+
+    .add-button:hover {
+      background: var(--brand-dark);
+    }
+
 
     .table-wrap {
       width: 100%;
@@ -436,7 +449,10 @@
               <h2 id="tableTitle">User List</h2>
               <p id="tableDescription">Data source: GET /api/users.</p>
             </div>
-            <button type="button" class="refresh-button" id="refreshButton">Refresh</button>
+            <div>
+              <button type="button" class="refresh-button" id="refreshButton">Refresh</button>
+              <button type="button" class="add-button" id="addButton">Add</button>
+            </div>
           </div>
 
           <div class="table-wrap">
@@ -786,13 +802,11 @@
     async function loadUsers() {
       const data = await authorizedGet(['/users']);
       state.users = getArrayPayload(data, 'users').map((user) => {
-        const roleLevel = user.RoleLevel || user.role_level || user.roleLevel || 0;
-
         return {
           id: user.id,
           username: user.username,
           email: user.email,
-          role: user.role,
+          roleLevel: user.role_level,
         };
         console.log(state.users);
       });

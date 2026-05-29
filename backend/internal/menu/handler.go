@@ -77,3 +77,24 @@ func (h *Handler) GetAllMenus(c *gin.Context) {
 
 	c.JSON(http.StatusOK, users)
 }
+
+func (h *Handler) RegisterMenu(c *gin.Context) {
+	var input RegisterInputMenu
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid data layout"})
+		return
+	}
+
+	user, err := h.service.Register(input)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Username or Email already exists!"})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"message": fmt.Sprintf(
+			"Menu %s created successfully!",
+			user.MenuName,
+		),
+	})
+}

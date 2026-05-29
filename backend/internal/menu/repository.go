@@ -31,3 +31,7 @@ func (r *Repository) FindAll() ([]Menu, error) {
 
 	return menus, nil
 }
+
+func (r *Repository) CreateMenu(menu *Menu) error {
+	return r.db.Create(menu).Error
+}
