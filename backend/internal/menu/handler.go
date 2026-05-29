@@ -22,6 +22,7 @@ func (h *Handler) RegisterRoutes(router *gin.Engine) {
 	authorized.Use(middleware.AuthMiddleware())
 	authorized.GET("/menu", h.GetMenus)
 	authorized.GET("/menus", h.GetAllMenus)
+	authorized.POST("/menu", h.RegisterMenu)
 }
 
 func (h *Handler) GetMenus(c *gin.Context) {
@@ -66,7 +67,7 @@ func getRoleLevel(c *gin.Context) (int, error) {
 
 func (h *Handler) GetAllMenus(c *gin.Context) {
 
-	users, err := h.service.GetAllMenus()
+	menus, err := h.service.GetAllMenus()
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -75,7 +76,7 @@ func (h *Handler) GetAllMenus(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, users)
+	c.JSON(http.StatusOK, menus)
 }
 
 func (h *Handler) RegisterMenu(c *gin.Context) {
@@ -87,7 +88,7 @@ func (h *Handler) RegisterMenu(c *gin.Context) {
 
 	user, err := h.service.Register(input)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Username or Email already exists!"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 

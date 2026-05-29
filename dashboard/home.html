@@ -242,6 +242,95 @@
       background: var(--brand-dark);
     }
 
+    .action-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .action-button {
+      border: 0;
+      border-radius: 8px;
+      cursor: pointer;
+      color: white;
+      padding: 8px 12px;
+      transition: 0.2s ease;
+    }
+
+    .edit-button {
+      background: #2563eb;
+    }
+
+    .edit-button:hover {
+      background: #1d4ed8;
+    }
+
+    .delete-button {
+      background: #dc2626;
+    }
+
+    .delete-button:hover {
+      background: #b91c1c;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      margin-top: 6px;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      display: grid;
+      place-items: center;
+      z-index: 1000;
+      padding: 18px;
+    }
+
+    .modal[hidden] {
+      display: none;
+    }
+
+    .modal-content {
+      width: 500px;
+      max-width: 100%;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.22);
+    }
+
+    .modal-close {
+      width: 36px;
+      height: 36px;
+      border: 0;
+      border-radius: 8px;
+      background: #f1f5f9;
+      color: var(--ink);
+      cursor: pointer;
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .menu-form {
+      padding: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      color: #475569;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
 
     .table-wrap {
       width: 100%;
@@ -361,41 +450,6 @@
         grid-template-columns: 1fr;
       }
 
-      .action-button {
-        width: 36px;
-        height: 36px;
-        border: 0;
-        border-radius: 8px;
-        cursor: pointer;
-        color: white;
-        font-size: 16px;
-        margin-right: 12px;
-        transition: 0.2s ease;
-      }
-
-      .edit-button {
-        background: #2563eb;
-        margin-right: 8px;
-      }
-
-      .edit-button:hover {
-        background: #1d4ed8;
-      }
-
-      .delete-button {
-        background: #dc2626;
-        margin-left: 8px;
-      }
-
-      .delete-button:hover {
-        background: #b91c1c;
-      }
-
-      .action-group {
-        display: flex;
-        gap: 8px;
-      }
-
     }
   </style>
 </head>
@@ -451,7 +505,7 @@
             </div>
             <div>
               <button type="button" class="refresh-button" id="refreshButton">Refresh</button>
-              <button type="button" class="add-button" id="addButton">Add</button>
+              <button type="button" class="add-button" id="addButton" hidden>Add</button>
             </div>
           </div>
 
@@ -466,6 +520,41 @@
         </section>
       </section>
     </main>
+  </div>
+
+  <div id="menuModal" class="modal" hidden>
+    <div class="modal-content">
+      <div class="panel-header">
+        <h2>Add Menu</h2>
+        <button type="button" class="modal-close" id="closeModal" aria-label="Close menu form">&times;</button>
+      </div>
+
+      <form id="menuForm" class="menu-form">
+        <div class="form-group">
+          <label>Menu Name</label>
+          <input type="text" id="menuName" required />
+        </div>
+
+        <div class="form-group">
+          <label>Route</label>
+          <input type="text" id="route" placeholder="/pesan-makanan" required />
+        </div>
+
+        <div class="form-group">
+          <label>Min Role Level</label>
+          <input type="number" id="minRoleLevel" min="1" required />
+        </div>
+
+        <div class="form-group">
+          <label>Max Role Level</label>
+          <input type="number" id="maxRoleLevel" min="1" required />
+        </div>
+
+        <button type="submit" class="refresh-button" id="saveMenuButton">
+          Save Menu
+        </button>
+      </form>
+    </div>
   </div>
 
   <script>
@@ -485,6 +574,25 @@
       window.location.href = 'login.html';
     }
 
+    const menuModal =
+      document.getElementById('menuModal');
+
+    document
+      .getElementById('addButton')
+      .addEventListener('click', () => {
+
+        if (state.view === 'menu') {
+          menuModal.hidden = false;
+        }
+      });
+
+    document
+      .getElementById('closeModal')
+      .addEventListener('click', () => {
+
+        menuModal.hidden = true;
+      });
+
     const elements = {
       adminChip: document.getElementById('adminChip'),
       drawerUser: document.getElementById('drawerUser'),
@@ -496,6 +604,9 @@
       tableBody: document.getElementById('tableBody'),
       emptyState: document.getElementById('emptyState'),
       errorText: document.getElementById('errorText'),
+      addButton: document.getElementById('addButton'),
+      menuForm: document.getElementById('menuForm'),
+      saveMenuButton: document.getElementById('saveMenuButton'),
       totalUsers: document.getElementById('totalUsers'),
       totalMenus: document.getElementById('totalMenus'),
       staffUsers: document.getElementById('staffUsers'),
@@ -580,25 +691,110 @@
         <td>${user.email}</td>
         <td>${user.roleLevel}</td>
         <td>
-          <button
-            class="action-button edit-button"
-            onclick="editUser(${user.id})"
-          >
-            Edit
-          </button>
+          <div class="action-group">
+            <button
+              class="action-button edit-button"
+              onclick="editUser(${user.id})"
+            >
+              Edit
+            </button>
 
-          <button
-            class="action-button delete-button"
-            onclick="deleteUser(${user.id})"
-          >
-            Delete
-          </button>
+            <button
+              class="action-button delete-button"
+              onclick="deleteUser(${user.id})"
+            >
+              Delete
+            </button>
+          </div>
         </td>
       </tr>
       `).join('');
 
       elements.emptyState.hidden = state.users.length > 0;
     }
+
+    document
+      .getElementById('menuForm')
+      .addEventListener(
+        'submit',
+        async (e) => {
+
+          e.preventDefault();
+
+          try {
+            const minRoleLevel = Number(
+              document.getElementById('minRoleLevel').value
+            );
+            const maxRoleLevel = Number(
+              document.getElementById('maxRoleLevel').value
+            );
+
+            if (maxRoleLevel < minRoleLevel) {
+              throw new Error('Max role level must be greater than or equal to min role level');
+            }
+
+            elements.saveMenuButton.disabled = true;
+            elements.saveMenuButton.textContent = 'Saving...';
+
+            const response = await fetch(
+              `${API_BASE_URL}/menu`,
+              {
+                method: 'POST',
+                headers: {
+                  'Content-Type':
+                    'application/json',
+                  Authorization:
+                    `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                  menu_name:
+                    document.getElementById(
+                      'menuName'
+                    ).value,
+
+                  route:
+                    document.getElementById(
+                      'route'
+                    ).value,
+
+                  min_role_level: minRoleLevel,
+
+                  max_role_level: maxRoleLevel,
+                }),
+              }
+            );
+
+            const data =
+              await response.json();
+
+            if (!response.ok) {
+              throw new Error(
+                data.error ||
+                'Failed to create menu'
+              );
+            }
+
+            alert(data.message);
+
+            menuModal.hidden = true;
+
+            elements.menuForm.reset();
+
+            await loadMenus();
+
+            renderView();
+
+
+          } catch (error) {
+
+            alert(error.message);
+          } finally {
+            elements.saveMenuButton.disabled = false;
+            elements.saveMenuButton.textContent = 'Save Menu';
+          }
+        }
+      );
+
 
     async function deleteUser(id) {
 
@@ -752,6 +948,7 @@
         elements.pageSubtitle.textContent = 'View menu rows from the menu API.';
         elements.tableTitle.textContent = 'Menu List';
         elements.tableDescription.textContent = 'Data source: GET /api/menus';
+        elements.addButton.hidden = false;
         elements.usersStat.hidden = true;
         elements.menusStat.hidden = false;
         renderMenus();
@@ -760,6 +957,7 @@
         elements.pageSubtitle.textContent = 'View user rows from the users API.';
         elements.tableTitle.textContent = 'User List';
         elements.tableDescription.textContent = 'Data source: GET /api/users.';
+        elements.addButton.hidden = true;
         elements.usersStat.hidden = false;
         elements.menusStat.hidden = true;
         renderUsers();
