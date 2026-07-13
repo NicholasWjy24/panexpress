@@ -1,4 +1,6 @@
-const drawerTemplate = `
+const layoutBaseUrl = new URL('.', document.currentScript.src);
+
+const fallbackDrawerHtml = `
   <div class="drawer-backdrop" id="drawerBackdrop"></div>
 
   <aside class="drawer" aria-label="Dashboard drawer">
@@ -10,6 +12,7 @@ const drawerTemplate = `
     <nav class="nav">
       <a href="../user/user.html" data-page="user">Users Table</a>
       <a href="../menu/menu.html" data-page="menu">Menu Table</a>
+      <a href="../menu/menu.html" data-page="makanan">Makanan Table</a>
     </nav>
 
     <div class="drawer-footer">
@@ -19,7 +22,7 @@ const drawerTemplate = `
   </aside>
 `;
 
-const topbarTemplate = `
+const fallbackTopbarHtml = `
   <header class="topbar">
     <button type="button" class="menu-toggle" id="menuToggle" aria-label="Open drawer">=</button>
     <div class="page-title">
@@ -30,28 +33,43 @@ const topbarTemplate = `
   </header>
 `;
 
-// Load drawer and topbar dynamically into placeholders
-function loadLayout(activePage, title, description) {
+async function loadLayout(activePage, title, description) {
+  const drawerHtml = await loadLayoutPartial(
+    'drawer.html',
+    fallbackDrawerHtml
+  );
+
+  const topbarHtml = await loadLayoutPartial(
+    'topbar.html',
+    fallbackTopbarHtml
+  );
+
+  document.getElementById('drawerContainer').innerHTML = drawerHtml;
+  document.getElementById('topbarContainer').innerHTML = topbarHtml;
+
+  const activeLink = document.querySelector(`.nav a[data-page="${activePage}"]`);
+  if (activeLink) activeLink.classList.add('active');
+
+  const titleEl = document.getElementById('pageTitle');
+  const descEl = document.getElementById('pageDescription');
+  if (titleEl) titleEl.textContent = title;
+  if (descEl) descEl.textContent = description;
+
+  initDrawerEvents();
+}
+
+async function loadLayoutPartial(fileName, fallbackHtml) {
   try {
-    document.getElementById('drawerContainer').innerHTML = drawerTemplate;
+    const response = await fetch(new URL(fileName, layoutBaseUrl));
 
-    // Highlight active page link
-    const activeLink = document.querySelector(`.nav a[data-page="${activePage}"]`);
-    if (activeLink) activeLink.classList.add('active');
+    if (!response.ok) {
+      throw new Error(`${fileName} returned status ${response.status}`);
+    }
 
-    document.getElementById('topbarContainer').innerHTML = topbarTemplate;
-
-    // Update Topbar Title & Description
-    const titleEl = document.getElementById('pageTitle');
-    const descEl = document.getElementById('pageDescription');
-    if (titleEl) titleEl.textContent = title;
-    if (descEl) descEl.textContent = description;
-
-    // 3. Attach Mobile Drawer Toggles
-    initDrawerEvents();
-
+    return response.text();
   } catch (error) {
-    console.error("Error loading layout components:", error);
+    console.warn(`${fileName} could not be loaded. Using fallback layout.`, error);
+    return fallbackHtml;
   }
 }
 
