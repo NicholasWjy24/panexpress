@@ -18,6 +18,7 @@ type RegisterInputMakanan struct {
 	MknnPr float64 `json:"mknnpr" binding:"required"`
 	MknnQt int     `json:"mknnqt" binding:"required"`
 	MknnSt bool    `json:"mknnst"`
+	MknnIg []byte  `json:"-"`
 }
 
 func (s *Service) Register(
@@ -30,6 +31,7 @@ func (s *Service) Register(
 		MknnPr: input.MknnPr,
 		MknnQt: input.MknnQt,
 		MknnSt: input.MknnSt,
+		MknnIg: input.MknnIg,
 	}
 
 	if err := s.repository.CreateMakanan(makanan); err != nil {
@@ -37,6 +39,15 @@ func (s *Service) Register(
 	}
 
 	return makanan, nil
+}
+
+func (s *Service) GetMakananImage(id string) ([]byte, error) {
+	makanan, err := s.repository.FindByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return makanan.MknnIg, nil
 }
 
 func (s *Service) UpdateMakanan(
@@ -47,6 +58,17 @@ func (s *Service) UpdateMakanan(
 	return s.repository.UpdateMakanan(
 		id,
 		makanan,
+	)
+}
+
+func (s *Service) UpdateMakananImage(
+	id string,
+	image []byte,
+) error {
+
+	return s.repository.UpdateImage(
+		id,
+		image,
 	)
 }
 
