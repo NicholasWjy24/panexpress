@@ -5,39 +5,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PanExpress Users</title>
+
+  <link rel="stylesheet" href="../layout/layout.css">
   <link rel="stylesheet" href="user.css">
 </head>
 
 <body>
-  <div class="drawer-backdrop" id="drawerBackdrop"></div>
-
   <div class="layout">
-    <aside class="drawer" aria-label="Dashboard drawer">
-      <div class="brand">
-        <h2>PanExpress</h2>
-        <p>Admin Dashboard</p>
-      </div>
-
-      <nav class="nav">
-        <a class="active" href="user.html">Users Table</a>
-        <a href="../menu/menu.html">Menu Table</a>
-      </nav>
-
-      <div class="drawer-footer">
-        <span id="drawerUser">Signed in as Admin</span>
-        <button type="button" class="logout-button" id="logoutButton">Logout</button>
-      </div>
-    </aside>
+    <div id="drawerContainer"></div>
 
     <main class="main">
-      <header class="topbar">
-        <button type="button" class="menu-toggle" id="menuToggle" aria-label="Open drawer">=</button>
-        <div class="page-title">
-          <h1>Users Table</h1>
-          <p>View user rows from the users API.</p>
-        </div>
-        <div class="admin-chip" id="adminChip">Admin</div>
-      </header>
+      <div id="topbarContainer"></div>
 
       <section class="content">
         <div class="stats">
@@ -69,6 +47,7 @@
     </main>
   </div>
 
+  <script src="../layout/layout.js"></script>
   <script src="user.js"></script>
 </body>
 

@@ -7,41 +7,39 @@ const state = {
   error: '',
 };
 
-const elements = {
-  adminChip: document.getElementById('adminChip'),
-  drawerUser: document.getElementById('drawerUser'),
-  tableHead: document.getElementById('tableHead'),
-  tableBody: document.getElementById('tableBody'),
-  emptyState: document.getElementById('emptyState'),
-  errorText: document.getElementById('errorText'),
-  totalUsers: document.getElementById('totalUsers'),
-};
+let elements = {};
 
 if (!token) {
   window.location.href = '../login/login.html';
 }
 
-if (storedUser) {
-  elements.adminChip.textContent = storedUser.username || 'Admin';
-  elements.drawerUser.textContent = `Signed in as ${storedUser.username || 'Admin'}`;
-}
+async function initUserPage() {
+  await loadLayout('user', 'Users Table', 'View user rows from the users API.');
 
-document.getElementById('menuToggle').addEventListener('click', () => {
-  document.body.classList.add('drawer-open');
-});
+  elements = {
+    adminChip: document.getElementById('adminChip'),
+    drawerUser: document.getElementById('drawerUser'),
+    tableHead: document.getElementById('tableHead'),
+    tableBody: document.getElementById('tableBody'),
+    emptyState: document.getElementById('emptyState'),
+    errorText: document.getElementById('errorText'),
+    totalUsers: document.getElementById('totalUsers'),
+  };
 
-document.getElementById('drawerBackdrop').addEventListener('click', closeDrawer);
+  if (storedUser) {
+    elements.adminChip.textContent = storedUser.username || 'Admin';
+    elements.drawerUser.textContent = `Signed in as ${storedUser.username || 'Admin'}`;
+  }
 
-document.getElementById('logoutButton').addEventListener('click', () => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
-  window.location.href = '../login/login.html';
-});
+  document.getElementById('logoutButton').addEventListener('click', () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '../login/login.html';
+  });
 
-document.getElementById('refreshButton').addEventListener('click', loadUsers);
+  document.getElementById('refreshButton').addEventListener('click', loadUsers);
 
-function closeDrawer() {
-  document.body.classList.remove('drawer-open');
+  loadUsers();
 }
 
 function getArrayPayload(data, key) {
@@ -111,7 +109,7 @@ async function authorizedGet(path) {
   if (response.status === 401) {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    window.location.href = "../login/login.html";
+    window.location.href = '../login/login.html';
     return null;
   }
 
@@ -216,4 +214,4 @@ async function editUser(id) {
   }
 }
 
-loadUsers();
+initUserPage();

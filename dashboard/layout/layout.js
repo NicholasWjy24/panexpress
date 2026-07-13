@@ -1,0 +1,69 @@
+const drawerTemplate = `
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+
+  <aside class="drawer" aria-label="Dashboard drawer">
+    <div class="brand">
+      <h2>PanExpress</h2>
+      <p>Admin Dashboard</p>
+    </div>
+
+    <nav class="nav">
+      <a href="../user/user.html" data-page="user">Users Table</a>
+      <a href="../menu/menu.html" data-page="menu">Menu Table</a>
+    </nav>
+
+    <div class="drawer-footer">
+      <span id="drawerUser">Signed in as Admin</span>
+      <button type="button" class="logout-button" id="logoutButton">Logout</button>
+    </div>
+  </aside>
+`;
+
+const topbarTemplate = `
+  <header class="topbar">
+    <button type="button" class="menu-toggle" id="menuToggle" aria-label="Open drawer">=</button>
+    <div class="page-title">
+      <h1 id="pageTitle">Page Title</h1>
+      <p id="pageDescription">Page description goes here.</p>
+    </div>
+    <div class="admin-chip" id="adminChip">Admin</div>
+  </header>
+`;
+
+// Load drawer and topbar dynamically into placeholders
+function loadLayout(activePage, title, description) {
+  try {
+    document.getElementById('drawerContainer').innerHTML = drawerTemplate;
+
+    // Highlight active page link
+    const activeLink = document.querySelector(`.nav a[data-page="${activePage}"]`);
+    if (activeLink) activeLink.classList.add('active');
+
+    document.getElementById('topbarContainer').innerHTML = topbarTemplate;
+
+    // Update Topbar Title & Description
+    const titleEl = document.getElementById('pageTitle');
+    const descEl = document.getElementById('pageDescription');
+    if (titleEl) titleEl.textContent = title;
+    if (descEl) descEl.textContent = description;
+
+    // 3. Attach Mobile Drawer Toggles
+    initDrawerEvents();
+
+  } catch (error) {
+    console.error("Error loading layout components:", error);
+  }
+}
+
+function initDrawerEvents() {
+  const menuToggle = document.getElementById('menuToggle');
+  const drawerBackdrop = document.getElementById('drawerBackdrop');
+
+  menuToggle?.addEventListener('click', () => {
+    document.body.classList.add('drawer-open');
+  });
+
+  drawerBackdrop?.addEventListener('click', () => {
+    document.body.classList.remove('drawer-open');
+  });
+}

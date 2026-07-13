@@ -7,52 +7,52 @@ const state = {
   error: '',
 };
 
-const elements = {
-  adminChip: document.getElementById('adminChip'),
-  drawerUser: document.getElementById('drawerUser'),
-  tableHead: document.getElementById('tableHead'),
-  tableBody: document.getElementById('tableBody'),
-  emptyState: document.getElementById('emptyState'),
-  errorText: document.getElementById('errorText'),
-  totalMenus: document.getElementById('totalMenus'),
-  menuModal: document.getElementById('menuModal'),
-  menuForm: document.getElementById('menuForm'),
-  saveMenuButton: document.getElementById('saveMenuButton'),
-};
+let elements = {};
 
 if (!token) {
-  window.location.href = 'login.html';
+  window.location.href = '../login/login.html';
 }
 
-if (storedUser) {
-  elements.adminChip.textContent = storedUser.username || 'Admin';
-  elements.drawerUser.textContent = `Signed in as ${storedUser.username || 'Admin'}`;
-}
+async function initMenuPage() {
+  await loadLayout('menu', 'Menu Table', 'View menu rows from the menu API.');
 
-document.getElementById('menuToggle').addEventListener('click', () => {
-  document.body.classList.add('drawer-open');
-});
+  elements = {
+    adminChip: document.getElementById('adminChip'),
+    drawerUser: document.getElementById('drawerUser'),
+    tableHead: document.getElementById('tableHead'),
+    tableBody: document.getElementById('tableBody'),
+    emptyState: document.getElementById('emptyState'),
+    errorText: document.getElementById('errorText'),
+    totalMenus: document.getElementById('totalMenus'),
+    menuModal: document.getElementById('menuModal'),
+    menuForm: document.getElementById('menuForm'),
+    saveMenuButton: document.getElementById('saveMenuButton'),
+  };
 
-document.getElementById('drawerBackdrop').addEventListener('click', closeDrawer);
+  if (storedUser) {
+    elements.adminChip.textContent = storedUser.username || 'Admin';
+    elements.drawerUser.textContent = `Signed in as ${storedUser.username || 'Admin'}`;
+  }
 
-document.getElementById('logoutButton').addEventListener('click', () => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
-  window.location.href = 'login.html';
-});
+  document.getElementById('logoutButton').addEventListener('click', () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '../login/login.html';
+  });
 
-document.getElementById('refreshButton').addEventListener('click', loadMenus);
+  document.getElementById('refreshButton').addEventListener('click', loadMenus);
 
-document.getElementById('addButton').addEventListener('click', () => {
-  elements.menuModal.hidden = false;
-});
+  document.getElementById('addButton').addEventListener('click', () => {
+    elements.menuModal.hidden = false;
+  });
 
-document.getElementById('closeModal').addEventListener('click', () => {
-  elements.menuModal.hidden = true;
-});
+  document.getElementById('closeModal').addEventListener('click', () => {
+    elements.menuModal.hidden = true;
+  });
 
-function closeDrawer() {
-  document.body.classList.remove('drawer-open');
+  elements.menuForm.addEventListener('submit', handleMenuSubmit);
+
+  loadMenus();
 }
 
 function getArrayPayload(data, key) {
@@ -113,7 +113,7 @@ async function authorizedGet(path) {
   if (response.status === 401) {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    window.location.href = 'login.html';
+    window.location.href = '../login/login.html';
     return null;
   }
 
@@ -143,7 +143,7 @@ async function loadMenus() {
   renderMenus();
 }
 
-elements.menuForm.addEventListener('submit', async (event) => {
+async function handleMenuSubmit(event) {
   event.preventDefault();
 
   try {
@@ -187,6 +187,6 @@ elements.menuForm.addEventListener('submit', async (event) => {
     elements.saveMenuButton.disabled = false;
     elements.saveMenuButton.textContent = 'Save Menu';
   }
-});
+}
 
-loadMenus();
+initMenuPage();
