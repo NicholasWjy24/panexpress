@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PanExpress Users</title>
+  <link rel="stylesheet" href="user.css">
+</head>
+
+<body>
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+
+  <div class="layout">
+    <aside class="drawer" aria-label="Dashboard drawer">
+      <div class="brand">
+        <h2>PanExpress</h2>
+        <p>Admin Dashboard</p>
+      </div>
+
+      <nav class="nav">
+        <a class="active" href="user.html">Users Table</a>
+        <a href="../menu/menu.html">Menu Table</a>
+      </nav>
+
+      <div class="drawer-footer">
+        <span id="drawerUser">Signed in as Admin</span>
+        <button type="button" class="logout-button" id="logoutButton">Logout</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button type="button" class="menu-toggle" id="menuToggle" aria-label="Open drawer">=</button>
+        <div class="page-title">
+          <h1>Users Table</h1>
+          <p>View user rows from the users API.</p>
+        </div>
+        <div class="admin-chip" id="adminChip">Admin</div>
+      </header>
+
+      <section class="content">
+        <div class="stats">
+          <div class="stat">
+            <span>Total Users</span>
+            <strong id="totalUsers">0</strong>
+          </div>
+        </div>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>User List</h2>
+              <p>Data source: GET /api/users.</p>
+            </div>
+            <button type="button" class="refresh-button" id="refreshButton">Refresh</button>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead id="tableHead"></thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+          </div>
+          <div class="empty-state" id="emptyState" hidden>No users available.</div>
+          <div class="error-text" id="errorText" hidden></div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script src="user.js"></script>
+</body>
+
+</html>

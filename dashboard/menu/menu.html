@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PanExpress Menu</title>
+  <link rel="stylesheet" href="menu.css">
+</head>
+
+<body>
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+
+  <div class="layout">
+    <aside class="drawer" aria-label="Dashboard drawer">
+      <div class="brand">
+        <h2>PanExpress</h2>
+        <p>Admin Dashboard</p>
+      </div>
+
+      <nav class="nav">
+        <a href="../user/user.html">Users Table</a>
+        <a class="active" href="menu.html">Menu Table</a>
+      </nav>
+
+      <div class="drawer-footer">
+        <span id="drawerUser">Signed in as Admin</span>
+        <button type="button" class="logout-button" id="logoutButton">Logout</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button type="button" class="menu-toggle" id="menuToggle" aria-label="Open drawer">=</button>
+        <div class="page-title">
+          <h1>Menu Table</h1>
+          <p>View menu rows from the menu API.</p>
+        </div>
+        <div class="admin-chip" id="adminChip">Admin</div>
+      </header>
+
+      <section class="content">
+        <div class="stats">
+          <div class="stat">
+            <span>Total Menu</span>
+            <strong id="totalMenus">0</strong>
+          </div>
+        </div>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>Menu List</h2>
+              <p>Data source: GET /api/menus.</p>
+            </div>
+            <div>
+              <button type="button" class="refresh-button" id="refreshButton">Refresh</button>
+              <button type="button" class="add-button" id="addButton">Add</button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead id="tableHead"></thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+          </div>
+          <div class="empty-state" id="emptyState" hidden>No menu data available.</div>
+          <div class="error-text" id="errorText" hidden></div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <div id="menuModal" class="modal" hidden>
+    <div class="modal-content">
+      <div class="panel-header">
+        <h2>Add Menu</h2>
+        <button type="button" class="modal-close" id="closeModal" aria-label="Close menu form">&times;</button>
+      </div>
+
+      <form id="menuForm" class="menu-form">
+        <div class="form-group">
+          <label for="menuName">Menu Name</label>
+          <input type="text" id="menuName" required>
+        </div>
+
+        <div class="form-group">
+          <label for="route">Route</label>
+          <input type="text" id="route" placeholder="/pesan-makanan" required>
+        </div>
+
+        <div class="form-group">
+          <label for="minRoleLevel">Min Role Level</label>
+          <input type="number" id="minRoleLevel" min="1" required>
+        </div>
+
+        <div class="form-group">
+          <label for="maxRoleLevel">Max Role Level</label>
+          <input type="number" id="maxRoleLevel" min="1" required>
+        </div>
+
+        <button type="submit" class="refresh-button" id="saveMenuButton">
+          Save Menu
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script src="menu.js"></script>
+</body>
+
+</html>
