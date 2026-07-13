@@ -31,7 +31,10 @@
               <h2>User List</h2>
               <p>Data source: GET /api/users.</p>
             </div>
-            <button type="button" class="refresh-button" id="refreshButton">Refresh</button>
+            <div>
+              <button type="button" class="refresh-button" id="refreshButton">Refresh</button>
+              <button type="button" class="add-button" id="addButton">Add</button>
+            </div>
           </div>
 
           <div class="table-wrap">
@@ -45,6 +48,46 @@
         </section>
       </section>
     </main>
+  </div>
+
+  <div id="userModal" class="modal" hidden>
+    <div class="modal-content">
+      <div class="panel-header">
+        <h2>Add User</h2>
+
+        <button type="button" id="closeUserModal" class="modal-close" aria-label="Close user form">
+          &times;
+        </button>
+      </div>
+
+      <form id="userForm" class="menu-form">
+
+        <div class="form-group">
+          <label for="newUsername">Username</label>
+          <input type="text" id="newUsername" required>
+        </div>
+
+        <div class="form-group">
+          <label for="newEmail">Email</label>
+          <input type="email" id="newEmail" required>
+        </div>
+
+        <div class="form-group">
+          <label for="newPassword">Password</label>
+          <input type="password" id="newPassword" required>
+        </div>
+
+        <div class="form-group">
+          <label for="newRoleLevel">Role Level</label>
+          <input type="number" id="newRoleLevel" min="1" required>
+        </div>
+
+        <button type="submit" class="refresh-button" id="saveUserButton">
+          Save User
+        </button>
+
+      </form>
+    </div>
   </div>
 
   <script src="../layout/layout.js"></script>

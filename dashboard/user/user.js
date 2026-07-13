@@ -14,7 +14,11 @@ if (!token) {
 }
 
 async function initUserPage() {
-  await loadLayout('user', 'Users Table', 'View user rows from the users API.');
+  await loadLayout(
+    'user',
+    'Users Table',
+    'View user rows from the users API.'
+  );
 
   elements = {
     adminChip: document.getElementById('adminChip'),
@@ -24,22 +28,57 @@ async function initUserPage() {
     emptyState: document.getElementById('emptyState'),
     errorText: document.getElementById('errorText'),
     totalUsers: document.getElementById('totalUsers'),
+
+    userModal: document.getElementById('userModal'),
+    userForm: document.getElementById('userForm'),
+    saveUserButton: document.getElementById('saveUserButton'),
   };
 
   if (storedUser) {
-    elements.adminChip.textContent = storedUser.username || 'Admin';
-    elements.drawerUser.textContent = `Signed in as ${storedUser.username || 'Admin'}`;
+    elements.adminChip.textContent =
+      storedUser.username || 'Admin';
+
+    elements.drawerUser.textContent =
+      `Signed in as ${storedUser.username || 'Admin'}`;
   }
 
-  document.getElementById('logoutButton').addEventListener('click', () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.href = '../login/login.html';
-  });
+  document
+    .getElementById('logoutButton')
+    .addEventListener('click', logout);
 
-  document.getElementById('refreshButton').addEventListener('click', loadUsers);
+  document
+    .getElementById('addButton')
+    .addEventListener('click', openUserModal);
 
-  loadUsers();
+  document
+    .getElementById('refreshButton')
+    .addEventListener('click', loadUsers);
+
+  document
+    .getElementById('closeUserModal')
+    .addEventListener('click', closeUserModal);
+
+  elements.userForm.addEventListener(
+    'submit',
+    createUser
+  );
+
+  await loadUsers();
+}
+
+function logout() {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  window.location.href = '../login/login.html';
+}
+
+function openUserModal() {
+  elements.userModal.hidden = false;
+}
+
+function closeUserModal() {
+  elements.userModal.hidden = true;
+  elements.userForm.reset();
 }
 
 function getArrayPayload(data, key) {
@@ -138,6 +177,74 @@ async function loadUsers() {
   renderUsers();
 }
 
+async function createUser(event) {
+  event.preventDefault();
+
+  const username = document.getElementById('newUsername').value.trim();
+  const email = document.getElementById('newEmail').value.trim();
+  const password = document.getElementById('newPassword').value;
+  const roleLevel = Number(document.getElementById('newRoleLevel').value);
+
+  if (!Number.isInteger(roleLevel) || roleLevel < 1 || roleLevel > 3) {
+    alert("Role level must be an integer between 1 and 3.");
+    return;
+  }
+
+  try {
+    elements.saveUserButton.disabled = true;
+    elements.saveUserButton.textContent = 'Saving...';
+
+    const registerResponse = await fetch(`${API_BASE_URL}/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username,
+        email,
+        password,
+      }),
+    });
+
+    const registerData = await registerResponse.json();
+
+    if (!registerResponse.ok) {
+      throw new Error(registerData.error || 'Failed to create user');
+    }
+
+    const createdUserId = registerData.user_id;
+
+    if (createdUserId && roleLevel !== 3) {
+      const roleResponse = await fetch(`${API_BASE_URL}/users/${createdUserId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          username,
+          email,
+          role_level: roleLevel,
+        }),
+      });
+
+      if (!roleResponse.ok) {
+        throw new Error('User was created, but failed to update role level');
+      }
+    }
+
+    closeUserModal();
+    await loadUsers();
+    alert(registerData.message || 'User created successfully');
+  } catch (error) {
+    console.error(error);
+    alert(error.message);
+  } finally {
+    elements.saveUserButton.disabled = false;
+    elements.saveUserButton.textContent = 'Save User';
+  }
+}
+
 async function deleteUser(id) {
   const confirmed = confirm('Delete this user?');
 
@@ -213,5 +320,4 @@ async function editUser(id) {
     alert(error.message);
   }
 }
-
 initUserPage();
